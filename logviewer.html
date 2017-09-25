@@ -144,19 +144,18 @@
       $("#btn-prev").click(function(){
         prev_page();
       });
+
       //前ページボタン押下
       $("#btn-next").click(function(){
         next_page();
       });
+
       //検索ボタン押下
       $("#btn-search").click(function(){
-        alert($("#search-date").val())
-        var result = check_date($("#search-date").val());
-        if(!result){
-            alert("無効な日付の入力形式です。日付はyyyy/mm/ddの形式で入力してください。");
-            return;
-        }
+        var date = $("#search-date").val();
+        alert(date);
       });
+      
       //詳細の表示
       $(document).on("click", "tr.btn-show-detail", function(){
         var tr = $(this)[0];
