@@ -33,7 +33,7 @@
             <a class="nav-link" href="#">Home <span class="sr-only">(current)</span></a>
           </li>
           <li class="nav-item">
-            <a class="nav-link" href="#">Settings</a>
+            <a class="nav-link" href="./select.html">Settings</a>
           </li>
           <li class="nav-item">
             <a class="nav-link" href="#">About</a>
@@ -83,7 +83,7 @@
     <!-- Bootstrap core JavaScript
     ================================================== -->
     <!-- Placed at the end of the document so the pages load faster -->
-    <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
+    <script src="https://code.jquery.com/jquery-3.2.1.min.js" integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4=" crossorigin="anonymous"></script>
     <script src="https://fezvrasta.github.io/bootstrap-material-design/assets/js/vendor/popper.min.js"></script>
     <script src="https://fezvrasta.github.io/bootstrap-material-design/dist/js/bootstrap-material-design.min.js"></script>
     <!-- IE10 viewport hack for Surface/desktop Windows 8 bug -->
@@ -93,13 +93,15 @@
     ================================================== -->
     <script type="text/javascript">
 
-      var DISPLAY_LIMIT = 1000;      //最大表示件数(これ以上はページング)
+      var DISPLAY_LIMIT = 1000;     //最大表示件数(これ以上はページング)
       var UPDATE_TIME   = 3;        //アップデートの間隔(秒)
 
-      var is_show_all_row = false;  // テーブルを全件表示をしているか
-      var is_search_result = false; // 検索結果を表示しているか
-      var is_pageup_event = true;   // スクロールイベント処理を重複させないための処理フラグ
-      var is_pagedown_event = true; // スクロールイベント処理を重複させないための処理フラグ
+      var is_search_result = false; //検索結果を表示しているか
+      var is_pageup_event = true;   //スクロールイベント処理を重複させないための処理フラグ
+      var is_pagedown_event = true; //スクロールイベント処理を重複させないための処理フラグ
+
+      var first_request_id = '';    //改ページ用
+      var last_request_id = '';     //改ページ用
 
       var table = document.getElementById("data-table");
 
@@ -155,7 +157,7 @@
         var date = $("#search-date").val();
         alert(date);
       });
-      
+
       //詳細の表示
       $(document).on("click", "tr.btn-show-detail", function(){
         var tr = $(this)[0];
@@ -233,6 +235,14 @@
         var logs = result["logs"];
         var datas = logs["datas"];
 
+        if(logs["last_request_id"] != ''){
+          last_request_id = logs["last_request_id"];
+        }
+        //初期表示時の考慮
+        if(first_request_id == '' && logs["first_request_id"] != ''){
+          first_request_id = logs["first_request_id"];
+        }
+
         for(var i=0; i<logs["total"]; i++){
 
           var tr = table.insertRow(-1);
@@ -249,6 +259,10 @@
       function show_prev_list(result){
         var logs = result["logs"];
         var datas = logs["datas"];
+
+        if(logs["first_request_id"] != ''){
+          first_request_id = logs['first_request_id'];
+        }
 
         for(var i=0; i<logs["total"]; i++){
           //console.log(datas[i]);
@@ -317,6 +331,30 @@
       //詳細取得
       function get_detail(){
 
+        /*
+        // 各フィールドから値を取得してJSONデータを作成
+        var data = {
+          reqid: '',
+        };
+
+        $.ajax({
+          type : "post",                    // method = "POST"
+          url : "/engine.php",                 // POST送信先のURL
+          data : JSON.stringify(data),      // JSONデータ本体
+          contentType : 'application/json', // リクエストの Content-Type
+          dataType : "json",                // レスポンスをJSONとしてパースする
+          success : function(json_data) {   // 200 OK時
+            // JSON Arrayの先頭が成功フラグ、失敗の場合2番目がエラーメッセージ
+            return json_data;
+          },
+          error: function() {         // HTTPエラー時
+              alert("Server Error. Pleasy try again later.");
+          },
+          complete: function() {      // 成功・失敗に関わらず通信が終了した際の処理
+          }
+        });
+        */
+
         var json_data = '{"status":200,"error":"","engines":{"total":3,"datas":[{"log_id":21,"engine_type":"hrime1","engine_name":"hrime_name1","raw_response":"111\u3042\u3044\u3046\u3048\u304a\u30a2\u30a4\u30a6\u30a8\u30aa","is_default":1},{"log_id":21,"engine_type":"hrime2","engine_name":"hrime_name2","raw_response":"222\u3042\u3044\u3046\u3048\u304a\u30a2\u30a4\u30a6\u30a8\u30aa","is_default":1},{"log_id":21,"engine_type":"hrime3","engine_name":"hrime_name3","raw_response":"333\u3042\u3044\u3046\u3048\u304a\u30a2\u30a4\u30a6\u30a8\u30aa","is_default":1}]}}'
 
         //JSONをパース
@@ -326,6 +364,34 @@
 
       //前ページ取得
       function get_prev(){
+        /*
+        // 各フィールドから値を取得してJSONデータを作成
+        var data = {
+          reqid: first_request_id,
+          total: 100,
+          pagetype: 'prev',
+          datetime: '',
+          appid: $('#appid').val(),
+        };
+
+        $.ajax({
+          type : "post",                    // method = "POST"
+          url : "/log.php",                 // POST送信先のURL
+          data : JSON.stringify(data),      // JSONデータ本体
+          contentType : 'application/json', // リクエストの Content-Type
+          dataType : "json",                // レスポンスをJSONとしてパースする
+          success : function(json_data) {   // 200 OK時
+            // JSON Arrayの先頭が成功フラグ、失敗の場合2番目がエラーメッセージ
+            return json_data;
+          },
+          error: function() {         // HTTPエラー時
+              alert("Server Error. Pleasy try again later.");
+          },
+          complete: function() {      // 成功・失敗に関わらず通信が終了した際の処理
+          }
+        });
+        */
+
         var json_data ='{"status":200,"error":"","logs":{"total":10,"first_request_id":121,"last_request_id":130,"datas":[{"log_id":81,"request_id":111,"application_id":5,"client_id":3,"user_id":2,"user_utterance":"\u3053\u3093\u306b\u3061\u308f","bot_utterance":"\u3053\u3093\u306b\u3061\u306f\uff01\u30e9\u30f3\u30c1\u306f\u4f55\u3092\u98df\u3079\u307e\u3057\u305f\u304b\uff1f","operator_raw":"\u30aa\u30da\u30ec\u30fc\u30bf\u30fc\u3067\u3059","is_default":1,"datetime":"2017\/09\/22 05:28:05"},{"log_id":82,"request_id":122,"application_id":5,"client_id":3,"user_id":2,"user_utterance":"\u3053\u3093\u306b\u3061\u308f","bot_utterance":"\u3053\u3093\u306b\u3061\u306f\uff01\u30e9\u30f3\u30c1\u306f\u4f55\u3092\u98df\u3079\u307e\u3057\u305f\u304b\uff1f","operator_raw":"\u30aa\u30da\u30ec\u30fc\u30bf\u30fc\u3067\u3059","is_default":1,"datetime":"2017\/09\/22 05:28:05"},{"log_id":83,"request_id":123,"application_id":5,"client_id":3,"user_id":2,"user_utterance":"\u3053\u3093\u306b\u3061\u308f","bot_utterance":"\u3053\u3093\u306b\u3061\u306f\uff01\u30e9\u30f3\u30c1\u306f\u4f55\u3092\u98df\u3079\u307e\u3057\u305f\u304b\uff1f","operator_raw":"\u30aa\u30da\u30ec\u30fc\u30bf\u30fc\u3067\u3059","is_default":1,"datetime":"2017\/09\/22 05:28:05"},{"log_id":84,"request_id":124,"application_id":5,"client_id":3,"user_id":2,"user_utterance":"\u3053\u3093\u306b\u3061\u308f","bot_utterance":"\u3053\u3093\u306b\u3061\u306f\uff01\u30e9\u30f3\u30c1\u306f\u4f55\u3092\u98df\u3079\u307e\u3057\u305f\u304b\uff1f","operator_raw":"\u30aa\u30da\u30ec\u30fc\u30bf\u30fc\u3067\u3059","is_default":1,"datetime":"2017\/09\/22 05:28:05"},{"log_id":85,"request_id":125,"application_id":5,"client_id":3,"user_id":2,"user_utterance":"\u3053\u3093\u306b\u3061\u308f","bot_utterance":"\u3053\u3093\u306b\u3061\u306f\uff01\u30e9\u30f3\u30c1\u306f\u4f55\u3092\u98df\u3079\u307e\u3057\u305f\u304b\uff1f","operator_raw":"\u30aa\u30da\u30ec\u30fc\u30bf\u30fc\u3067\u3059","is_default":1,"datetime":"2017\/09\/22 05:28:05"},{"log_id":86,"request_id":126,"application_id":5,"client_id":3,"user_id":2,"user_utterance":"\u3053\u3093\u306b\u3061\u308f","bot_utterance":"\u3053\u3093\u306b\u3061\u306f\uff01\u30e9\u30f3\u30c1\u306f\u4f55\u3092\u98df\u3079\u307e\u3057\u305f\u304b\uff1f","operator_raw":"\u30aa\u30da\u30ec\u30fc\u30bf\u30fc\u3067\u3059","is_default":1,"datetime":"2017\/09\/22 05:28:05"},{"log_id":87,"request_id":127,"application_id":5,"client_id":3,"user_id":2,"user_utterance":"\u3053\u3093\u306b\u3061\u308f","bot_utterance":"\u3053\u3093\u306b\u3061\u306f\uff01\u30e9\u30f3\u30c1\u306f\u4f55\u3092\u98df\u3079\u307e\u3057\u305f\u304b\uff1f","operator_raw":"\u30aa\u30da\u30ec\u30fc\u30bf\u30fc\u3067\u3059","is_default":1,"datetime":"2017\/09\/22 05:28:05"},{"log_id":88,"request_id":128,"application_id":5,"client_id":3,"user_id":2,"user_utterance":"\u3053\u3093\u306b\u3061\u308f","bot_utterance":"\u3053\u3093\u306b\u3061\u306f\uff01\u30e9\u30f3\u30c1\u306f\u4f55\u3092\u98df\u3079\u307e\u3057\u305f\u304b\uff1f","operator_raw":"\u30aa\u30da\u30ec\u30fc\u30bf\u30fc\u3067\u3059","is_default":1,"datetime":"2017\/09\/22 05:28:05"},{"log_id":89,"request_id":129,"application_id":5,"client_id":3,"user_id":2,"user_utterance":"\u3053\u3093\u306b\u3061\u308f","bot_utterance":"\u3053\u3093\u306b\u3061\u306f\uff01\u30e9\u30f3\u30c1\u306f\u4f55\u3092\u98df\u3079\u307e\u3057\u305f\u304b\uff1f","operator_raw":"\u30aa\u30da\u30ec\u30fc\u30bf\u30fc\u3067\u3059","is_default":1,"datetime":"2017\/09\/22 05:28:05"},{"log_id":90,"request_id":130,"application_id":5,"client_id":3,"user_id":2,"user_utterance":"\u3053\u3093\u306b\u3061\u308f","bot_utterance":"\u3053\u3093\u306b\u3061\u306f\uff01\u30e9\u30f3\u30c1\u306f\u4f55\u3092\u98df\u3079\u307e\u3057\u305f\u304b\uff1f","operator_raw":"\u30aa\u30da\u30ec\u30fc\u30bf\u30fc\u3067\u3059","is_default":1,"datetime":"2017\/09\/22 05:28:05"}]}}';
 
         //JSONをパース
@@ -336,6 +402,33 @@
       };
       //次ページ取得
       function get_next(){
+        /*
+        // 各フィールドから値を取得してJSONデータを作成
+        var data = {
+          reqid: last_request_id,
+          total: 100,
+          pagetype: 'next',
+          datetime: '',
+          appid: $('#appid').val(),
+        };
+
+        $.ajax({
+          type : "post",                    // method = "POST"
+          url : "/log.php",                 // POST送信先のURL
+          data : JSON.stringify(data),      // JSONデータ本体
+          contentType : 'application/json', // リクエストの Content-Type
+          dataType : "json",                // レスポンスをJSONとしてパースする
+          success : function(json_data) {   // 200 OK時
+            // JSON Arrayの先頭が成功フラグ、失敗の場合2番目がエラーメッセージ
+            return json_data;
+          },
+          error: function() {         // HTTPエラー時
+              alert("Server Error. Pleasy try again later.");
+          },
+          complete: function() {      // 成功・失敗に関わらず通信が終了した際の処理
+          }
+        });
+        */
         //json文字列
         var json_data ='{"status":200,"error":"","logs":{"total":10,"first_request_id":121,"last_request_id":130,"datas":[{"log_id":81,"request_id":121,"application_id":5,"client_id":3,"user_id":2,"user_utterance":"\u3053\u3093\u306b\u3061\u308f","bot_utterance":"\u3053\u3093\u306b\u3061\u306f\uff01\u30e9\u30f3\u30c1\u306f\u4f55\u3092\u98df\u3079\u307e\u3057\u305f\u304b\uff1f","operator_raw":"\u30aa\u30da\u30ec\u30fc\u30bf\u30fc\u3067\u3059","is_default":1,"datetime":"2017\/09\/22 05:28:05"},{"log_id":82,"request_id":122,"application_id":5,"client_id":3,"user_id":2,"user_utterance":"\u3053\u3093\u306b\u3061\u308f","bot_utterance":"\u3053\u3093\u306b\u3061\u306f\uff01\u30e9\u30f3\u30c1\u306f\u4f55\u3092\u98df\u3079\u307e\u3057\u305f\u304b\uff1f","operator_raw":"\u30aa\u30da\u30ec\u30fc\u30bf\u30fc\u3067\u3059","is_default":1,"datetime":"2017\/09\/22 05:28:05"},{"log_id":83,"request_id":123,"application_id":5,"client_id":3,"user_id":2,"user_utterance":"\u3053\u3093\u306b\u3061\u308f","bot_utterance":"\u3053\u3093\u306b\u3061\u306f\uff01\u30e9\u30f3\u30c1\u306f\u4f55\u3092\u98df\u3079\u307e\u3057\u305f\u304b\uff1f","operator_raw":"\u30aa\u30da\u30ec\u30fc\u30bf\u30fc\u3067\u3059","is_default":1,"datetime":"2017\/09\/22 05:28:05"},{"log_id":84,"request_id":124,"application_id":5,"client_id":3,"user_id":2,"user_utterance":"\u3053\u3093\u306b\u3061\u308f","bot_utterance":"\u3053\u3093\u306b\u3061\u306f\uff01\u30e9\u30f3\u30c1\u306f\u4f55\u3092\u98df\u3079\u307e\u3057\u305f\u304b\uff1f","operator_raw":"\u30aa\u30da\u30ec\u30fc\u30bf\u30fc\u3067\u3059","is_default":1,"datetime":"2017\/09\/22 05:28:05"},{"log_id":85,"request_id":125,"application_id":5,"client_id":3,"user_id":2,"user_utterance":"\u3053\u3093\u306b\u3061\u308f","bot_utterance":"\u3053\u3093\u306b\u3061\u306f\uff01\u30e9\u30f3\u30c1\u306f\u4f55\u3092\u98df\u3079\u307e\u3057\u305f\u304b\uff1f","operator_raw":"\u30aa\u30da\u30ec\u30fc\u30bf\u30fc\u3067\u3059","is_default":1,"datetime":"2017\/09\/22 05:28:05"},{"log_id":86,"request_id":126,"application_id":5,"client_id":3,"user_id":2,"user_utterance":"\u3053\u3093\u306b\u3061\u308f","bot_utterance":"\u3053\u3093\u306b\u3061\u306f\uff01\u30e9\u30f3\u30c1\u306f\u4f55\u3092\u98df\u3079\u307e\u3057\u305f\u304b\uff1f","operator_raw":"\u30aa\u30da\u30ec\u30fc\u30bf\u30fc\u3067\u3059","is_default":1,"datetime":"2017\/09\/22 05:28:05"},{"log_id":87,"request_id":127,"application_id":5,"client_id":3,"user_id":2,"user_utterance":"\u3053\u3093\u306b\u3061\u308f","bot_utterance":"\u3053\u3093\u306b\u3061\u306f\uff01\u30e9\u30f3\u30c1\u306f\u4f55\u3092\u98df\u3079\u307e\u3057\u305f\u304b\uff1f","operator_raw":"\u30aa\u30da\u30ec\u30fc\u30bf\u30fc\u3067\u3059","is_default":1,"datetime":"2017\/09\/22 05:28:05"},{"log_id":88,"request_id":128,"application_id":5,"client_id":3,"user_id":2,"user_utterance":"\u3053\u3093\u306b\u3061\u308f","bot_utterance":"\u3053\u3093\u306b\u3061\u306f\uff01\u30e9\u30f3\u30c1\u306f\u4f55\u3092\u98df\u3079\u307e\u3057\u305f\u304b\uff1f","operator_raw":"\u30aa\u30da\u30ec\u30fc\u30bf\u30fc\u3067\u3059","is_default":1,"datetime":"2017\/09\/22 05:28:05"},{"log_id":89,"request_id":129,"application_id":5,"client_id":3,"user_id":2,"user_utterance":"\u3053\u3093\u306b\u3061\u308f","bot_utterance":"\u3053\u3093\u306b\u3061\u306f\uff01\u30e9\u30f3\u30c1\u306f\u4f55\u3092\u98df\u3079\u307e\u3057\u305f\u304b\uff1f","operator_raw":"\u30aa\u30da\u30ec\u30fc\u30bf\u30fc\u3067\u3059","is_default":1,"datetime":"2017\/09\/22 05:28:05"},{"log_id":90,"request_id":130,"application_id":5,"client_id":3,"user_id":2,"user_utterance":"\u3053\u3093\u306b\u3061\u308f","bot_utterance":"\u3053\u3093\u306b\u3061\u306f\uff01\u30e9\u30f3\u30c1\u306f\u4f55\u3092\u98df\u3079\u307e\u3057\u305f\u304b\uff1f","operator_raw":"\u30aa\u30da\u30ec\u30fc\u30bf\u30fc\u3067\u3059","is_default":1,"datetime":"2017\/09\/22 05:28:05"}]}}';
 
