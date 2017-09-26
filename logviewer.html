@@ -70,7 +70,8 @@
             <table class="table table-fit" id="data-table">
               <thead>
                 <tr bgcolor="slategray">
-                  <th style="color:white;">RequestID</th>
+                  <th>LogId</th>
+                  <th>RequestID</th>
                   <th>Timestamp</th>
                   <th>UserUtterance</th>
                   <th>BotUtterance</th>
@@ -99,7 +100,7 @@
   ================================================== -->
   <script type="text/javascript">
 
-    var DISPLAY_LIMIT = 1000;     //最大表示件数(これ以上はページング)
+    var DISPLAY_LIMIT = 50;     //最大表示件数(これ以上はページング)
     var UPDATE_TIME   = 3;        //アップデートの間隔(秒)
 
     var is_autoupdate = true;
@@ -115,9 +116,9 @@
     var table = document.getElementById("data-table");
 
     $(function(){
-      $(".toggle-row").hide();
-
+      //初期表示
       show_datalist();
+
       //ページ読み込み後からページングを有効にする考慮
       is_pageup_event = false;
       is_pagedown_event = false;
@@ -236,9 +237,11 @@
             td3 = tr.insertCell(2),
             td4 = tr.insertCell(3),
             td5 = tr.insertCell(4);
+            td6 = tr.insertCell(5);
         td1.innerHTML = "-";
-        td4.innerHTML = datas[i].raw_response;
-        td5.innerHTML = datas[i].engine_name;
+        td2.innerHTML = "-";
+        td5.innerHTML = datas[i].raw_response;
+        td6.innerHTML = datas[i].engine_name;
       }
     };
 
@@ -276,6 +279,7 @@
         }
         edit_cell(tr, datas[i]);
       }
+      excess_log_delete("next");
     }
 
     function show_prev_list(result){
@@ -293,6 +297,7 @@
         var tr = table.insertRow(i+1);
         edit_cell(tr, datas[i]);
       }
+      excess_log_delete("prev");
     }
 
     function edit_cell(tr, data){
@@ -302,11 +307,13 @@
           td3 = tr.insertCell(2),
           td4 = tr.insertCell(3),
           td5 = tr.insertCell(4);
-      td1.innerHTML = data.request_id;
-      td2.innerHTML = data.datetime;
-      td3.innerHTML = data.user_utterance
-      td4.innerHTML = data.bot_utterance
-      td5.innerHTML = "-";
+          td6 = tr.insertCell(5);
+      td1.innerHTML = data.log_id;
+      td2.innerHTML = data.request_id;
+      td3.innerHTML = data.datetime;
+      td4.innerHTML = data.user_utterance
+      td5.innerHTML = data.bot_utterance
+      td6.innerHTML = "-";
     }
 
     function delete_detail(request_id){
@@ -318,18 +325,8 @@
       if(is_autoupdate){
         var len = $("#data-table tr").length - 1;
 
-        // TODO 現状はデバッグ用、本来は上の列を消していく
-        if(len > DISPLAY_LIMIT){
-          is_autoupdate = false;
-          $("#check-auto-update").prop('checked', is_autoupdate);
-          return
-
-        }else{
           console.log("auto_updated! len=" + len);
           next_page();
-        }
-      }else{
-        return;
       }
     };
 
@@ -435,7 +432,7 @@
       });
       */
 
-      var json_data ='{"status":200,"error":"","logs":{"total":10,"first_request_id":121,"last_request_id":130,"datas":[{"log_id":81,"request_id":111,"application_id":5,"client_id":3,"user_id":2,"user_utterance":"\u3053\u3093\u306b\u3061\u308f","bot_utterance":"\u3053\u3093\u306b\u3061\u306f\uff01\u30e9\u30f3\u30c1\u306f\u4f55\u3092\u98df\u3079\u307e\u3057\u305f\u304b\uff1f","operator_raw":"\u30aa\u30da\u30ec\u30fc\u30bf\u30fc\u3067\u3059","is_default":1,"datetime":"2017\/09\/22 05:28:05"},{"log_id":82,"request_id":122,"application_id":5,"client_id":3,"user_id":2,"user_utterance":"\u3053\u3093\u306b\u3061\u308f","bot_utterance":"\u3053\u3093\u306b\u3061\u306f\uff01\u30e9\u30f3\u30c1\u306f\u4f55\u3092\u98df\u3079\u307e\u3057\u305f\u304b\uff1f","operator_raw":"\u30aa\u30da\u30ec\u30fc\u30bf\u30fc\u3067\u3059","is_default":1,"datetime":"2017\/09\/22 05:28:05"},{"log_id":83,"request_id":123,"application_id":5,"client_id":3,"user_id":2,"user_utterance":"\u3053\u3093\u306b\u3061\u308f","bot_utterance":"\u3053\u3093\u306b\u3061\u306f\uff01\u30e9\u30f3\u30c1\u306f\u4f55\u3092\u98df\u3079\u307e\u3057\u305f\u304b\uff1f","operator_raw":"\u30aa\u30da\u30ec\u30fc\u30bf\u30fc\u3067\u3059","is_default":1,"datetime":"2017\/09\/22 05:28:05"},{"log_id":84,"request_id":124,"application_id":5,"client_id":3,"user_id":2,"user_utterance":"\u3053\u3093\u306b\u3061\u308f","bot_utterance":"\u3053\u3093\u306b\u3061\u306f\uff01\u30e9\u30f3\u30c1\u306f\u4f55\u3092\u98df\u3079\u307e\u3057\u305f\u304b\uff1f","operator_raw":"\u30aa\u30da\u30ec\u30fc\u30bf\u30fc\u3067\u3059","is_default":1,"datetime":"2017\/09\/22 05:28:05"},{"log_id":85,"request_id":125,"application_id":5,"client_id":3,"user_id":2,"user_utterance":"\u3053\u3093\u306b\u3061\u308f","bot_utterance":"\u3053\u3093\u306b\u3061\u306f\uff01\u30e9\u30f3\u30c1\u306f\u4f55\u3092\u98df\u3079\u307e\u3057\u305f\u304b\uff1f","operator_raw":"\u30aa\u30da\u30ec\u30fc\u30bf\u30fc\u3067\u3059","is_default":1,"datetime":"2017\/09\/22 05:28:05"},{"log_id":86,"request_id":126,"application_id":5,"client_id":3,"user_id":2,"user_utterance":"\u3053\u3093\u306b\u3061\u308f","bot_utterance":"\u3053\u3093\u306b\u3061\u306f\uff01\u30e9\u30f3\u30c1\u306f\u4f55\u3092\u98df\u3079\u307e\u3057\u305f\u304b\uff1f","operator_raw":"\u30aa\u30da\u30ec\u30fc\u30bf\u30fc\u3067\u3059","is_default":1,"datetime":"2017\/09\/22 05:28:05"},{"log_id":87,"request_id":127,"application_id":5,"client_id":3,"user_id":2,"user_utterance":"\u3053\u3093\u306b\u3061\u308f","bot_utterance":"\u3053\u3093\u306b\u3061\u306f\uff01\u30e9\u30f3\u30c1\u306f\u4f55\u3092\u98df\u3079\u307e\u3057\u305f\u304b\uff1f","operator_raw":"\u30aa\u30da\u30ec\u30fc\u30bf\u30fc\u3067\u3059","is_default":1,"datetime":"2017\/09\/22 05:28:05"},{"log_id":88,"request_id":128,"application_id":5,"client_id":3,"user_id":2,"user_utterance":"\u3053\u3093\u306b\u3061\u308f","bot_utterance":"\u3053\u3093\u306b\u3061\u306f\uff01\u30e9\u30f3\u30c1\u306f\u4f55\u3092\u98df\u3079\u307e\u3057\u305f\u304b\uff1f","operator_raw":"\u30aa\u30da\u30ec\u30fc\u30bf\u30fc\u3067\u3059","is_default":1,"datetime":"2017\/09\/22 05:28:05"},{"log_id":89,"request_id":129,"application_id":5,"client_id":3,"user_id":2,"user_utterance":"\u3053\u3093\u306b\u3061\u308f","bot_utterance":"\u3053\u3093\u306b\u3061\u306f\uff01\u30e9\u30f3\u30c1\u306f\u4f55\u3092\u98df\u3079\u307e\u3057\u305f\u304b\uff1f","operator_raw":"\u30aa\u30da\u30ec\u30fc\u30bf\u30fc\u3067\u3059","is_default":1,"datetime":"2017\/09\/22 05:28:05"},{"log_id":90,"request_id":130,"application_id":5,"client_id":3,"user_id":2,"user_utterance":"\u3053\u3093\u306b\u3061\u308f","bot_utterance":"\u3053\u3093\u306b\u3061\u306f\uff01\u30e9\u30f3\u30c1\u306f\u4f55\u3092\u98df\u3079\u307e\u3057\u305f\u304b\uff1f","operator_raw":"\u30aa\u30da\u30ec\u30fc\u30bf\u30fc\u3067\u3059","is_default":1,"datetime":"2017\/09\/22 05:28:05"}]}}';
+      var json_data ='{"status":200,"error":"","logs":{"total":10,"first_request_id":121,"last_request_id":125,"first_log_id":81,"last_log_id":90,"datas":[{"log_id":81,"request_id":121,"application_id":5,"client_id":3,"user_id":2,"user_utterance":"\u3053\u3093\u306b\u3061\u308f","bot_utterance":"\u3053\u3093\u306b\u3061\u306f\uff01\u30e9\u30f3\u30c1\u306f\u4f55\u3092\u98df\u3079\u307e\u3057\u305f\u304b\uff1f","operator_raw":"\u30aa\u30da\u30ec\u30fc\u30bf\u30fc\u3067\u3059","is_default":1,"datetime":"2017\/09\/22 05:28:05"},{"log_id":82,"request_id":121,"application_id":5,"client_id":3,"user_id":2,"user_utterance":"\u3053\u3093\u306b\u3061\u308f","bot_utterance":"\u3053\u3093\u306b\u3061\u306f\uff01\u30e9\u30f3\u30c1\u306f\u4f55\u3092\u98df\u3079\u307e\u3057\u305f\u304b\uff1f","operator_raw":"\u30aa\u30da\u30ec\u30fc\u30bf\u30fc\u3067\u3059","is_default":1,"datetime":"2017\/09\/22 05:28:05"},{"log_id":83,"request_id":122,"application_id":5,"client_id":3,"user_id":2,"user_utterance":"\u3053\u3093\u306b\u3061\u308f","bot_utterance":"\u3053\u3093\u306b\u3061\u306f\uff01\u30e9\u30f3\u30c1\u306f\u4f55\u3092\u98df\u3079\u307e\u3057\u305f\u304b\uff1f","operator_raw":"\u30aa\u30da\u30ec\u30fc\u30bf\u30fc\u3067\u3059","is_default":1,"datetime":"2017\/09\/22 05:28:05"},{"log_id":84,"request_id":122,"application_id":5,"client_id":3,"user_id":2,"user_utterance":"\u3053\u3093\u306b\u3061\u308f","bot_utterance":"\u3053\u3093\u306b\u3061\u306f\uff01\u30e9\u30f3\u30c1\u306f\u4f55\u3092\u98df\u3079\u307e\u3057\u305f\u304b\uff1f","operator_raw":"\u30aa\u30da\u30ec\u30fc\u30bf\u30fc\u3067\u3059","is_default":1,"datetime":"2017\/09\/22 05:28:05"},{"log_id":85,"request_id":123,"application_id":5,"client_id":3,"user_id":2,"user_utterance":"\u3053\u3093\u306b\u3061\u308f","bot_utterance":"\u3053\u3093\u306b\u3061\u306f\uff01\u30e9\u30f3\u30c1\u306f\u4f55\u3092\u98df\u3079\u307e\u3057\u305f\u304b\uff1f","operator_raw":"\u30aa\u30da\u30ec\u30fc\u30bf\u30fc\u3067\u3059","is_default":1,"datetime":"2017\/09\/22 05:28:05"},{"log_id":86,"request_id":123,"application_id":5,"client_id":3,"user_id":2,"user_utterance":"\u3053\u3093\u306b\u3061\u308f","bot_utterance":"\u3053\u3093\u306b\u3061\u306f\uff01\u30e9\u30f3\u30c1\u306f\u4f55\u3092\u98df\u3079\u307e\u3057\u305f\u304b\uff1f","operator_raw":"\u30aa\u30da\u30ec\u30fc\u30bf\u30fc\u3067\u3059","is_default":1,"datetime":"2017\/09\/22 05:28:05"},{"log_id":87,"request_id":124,"application_id":5,"client_id":3,"user_id":2,"user_utterance":"\u3053\u3093\u306b\u3061\u308f","bot_utterance":"\u3053\u3093\u306b\u3061\u306f\uff01\u30e9\u30f3\u30c1\u306f\u4f55\u3092\u98df\u3079\u307e\u3057\u305f\u304b\uff1f","operator_raw":"\u30aa\u30da\u30ec\u30fc\u30bf\u30fc\u3067\u3059","is_default":1,"datetime":"2017\/09\/22 05:28:05"},{"log_id":88,"request_id":124,"application_id":5,"client_id":3,"user_id":2,"user_utterance":"\u3053\u3093\u306b\u3061\u308f","bot_utterance":"\u3053\u3093\u306b\u3061\u306f\uff01\u30e9\u30f3\u30c1\u306f\u4f55\u3092\u98df\u3079\u307e\u3057\u305f\u304b\uff1f","operator_raw":"\u30aa\u30da\u30ec\u30fc\u30bf\u30fc\u3067\u3059","is_default":1,"datetime":"2017\/09\/22 05:28:05"},{"log_id":89,"request_id":125,"application_id":5,"client_id":3,"user_id":2,"user_utterance":"\u3053\u3093\u306b\u3061\u308f","bot_utterance":"\u3053\u3093\u306b\u3061\u306f\uff01\u30e9\u30f3\u30c1\u306f\u4f55\u3092\u98df\u3079\u307e\u3057\u305f\u304b\uff1f","operator_raw":"\u30aa\u30da\u30ec\u30fc\u30bf\u30fc\u3067\u3059","is_default":1,"datetime":"2017\/09\/22 05:28:05"},{"log_id":90,"request_id":125,"application_id":5,"client_id":3,"user_id":2,"user_utterance":"\u3053\u3093\u306b\u3061\u308f","bot_utterance":"\u3053\u3093\u306b\u3061\u306f\uff01\u30e9\u30f3\u30c1\u306f\u4f55\u3092\u98df\u3079\u307e\u3057\u305f\u304b\uff1f","operator_raw":"\u30aa\u30da\u30ec\u30fc\u30bf\u30fc\u3067\u3059","is_default":1,"datetime":"2017\/09\/22 05:28:05"}]}}';
 
       //JSONをパース
       var data = JSON.parse(json_data);
@@ -473,27 +470,44 @@
       });
       */
       //json文字列
-      var json_data ='{"status":200,"error":"","logs":{"total":10,"first_request_id":121,"last_request_id":130,"datas":[{"log_id":81,"request_id":121,"application_id":5,"client_id":3,"user_id":2,"user_utterance":"\u3053\u3093\u306b\u3061\u308f","bot_utterance":"\u3053\u3093\u306b\u3061\u306f\uff01\u30e9\u30f3\u30c1\u306f\u4f55\u3092\u98df\u3079\u307e\u3057\u305f\u304b\uff1f","operator_raw":"\u30aa\u30da\u30ec\u30fc\u30bf\u30fc\u3067\u3059","is_default":1,"datetime":"2017\/09\/22 05:28:05"},{"log_id":82,"request_id":122,"application_id":5,"client_id":3,"user_id":2,"user_utterance":"\u3053\u3093\u306b\u3061\u308f","bot_utterance":"\u3053\u3093\u306b\u3061\u306f\uff01\u30e9\u30f3\u30c1\u306f\u4f55\u3092\u98df\u3079\u307e\u3057\u305f\u304b\uff1f","operator_raw":"\u30aa\u30da\u30ec\u30fc\u30bf\u30fc\u3067\u3059","is_default":1,"datetime":"2017\/09\/22 05:28:05"},{"log_id":83,"request_id":123,"application_id":5,"client_id":3,"user_id":2,"user_utterance":"\u3053\u3093\u306b\u3061\u308f","bot_utterance":"\u3053\u3093\u306b\u3061\u306f\uff01\u30e9\u30f3\u30c1\u306f\u4f55\u3092\u98df\u3079\u307e\u3057\u305f\u304b\uff1f","operator_raw":"\u30aa\u30da\u30ec\u30fc\u30bf\u30fc\u3067\u3059","is_default":1,"datetime":"2017\/09\/22 05:28:05"},{"log_id":84,"request_id":124,"application_id":5,"client_id":3,"user_id":2,"user_utterance":"\u3053\u3093\u306b\u3061\u308f","bot_utterance":"\u3053\u3093\u306b\u3061\u306f\uff01\u30e9\u30f3\u30c1\u306f\u4f55\u3092\u98df\u3079\u307e\u3057\u305f\u304b\uff1f","operator_raw":"\u30aa\u30da\u30ec\u30fc\u30bf\u30fc\u3067\u3059","is_default":1,"datetime":"2017\/09\/22 05:28:05"},{"log_id":85,"request_id":125,"application_id":5,"client_id":3,"user_id":2,"user_utterance":"\u3053\u3093\u306b\u3061\u308f","bot_utterance":"\u3053\u3093\u306b\u3061\u306f\uff01\u30e9\u30f3\u30c1\u306f\u4f55\u3092\u98df\u3079\u307e\u3057\u305f\u304b\uff1f","operator_raw":"\u30aa\u30da\u30ec\u30fc\u30bf\u30fc\u3067\u3059","is_default":1,"datetime":"2017\/09\/22 05:28:05"},{"log_id":86,"request_id":126,"application_id":5,"client_id":3,"user_id":2,"user_utterance":"\u3053\u3093\u306b\u3061\u308f","bot_utterance":"\u3053\u3093\u306b\u3061\u306f\uff01\u30e9\u30f3\u30c1\u306f\u4f55\u3092\u98df\u3079\u307e\u3057\u305f\u304b\uff1f","operator_raw":"\u30aa\u30da\u30ec\u30fc\u30bf\u30fc\u3067\u3059","is_default":1,"datetime":"2017\/09\/22 05:28:05"},{"log_id":87,"request_id":127,"application_id":5,"client_id":3,"user_id":2,"user_utterance":"\u3053\u3093\u306b\u3061\u308f","bot_utterance":"\u3053\u3093\u306b\u3061\u306f\uff01\u30e9\u30f3\u30c1\u306f\u4f55\u3092\u98df\u3079\u307e\u3057\u305f\u304b\uff1f","operator_raw":"\u30aa\u30da\u30ec\u30fc\u30bf\u30fc\u3067\u3059","is_default":1,"datetime":"2017\/09\/22 05:28:05"},{"log_id":88,"request_id":128,"application_id":5,"client_id":3,"user_id":2,"user_utterance":"\u3053\u3093\u306b\u3061\u308f","bot_utterance":"\u3053\u3093\u306b\u3061\u306f\uff01\u30e9\u30f3\u30c1\u306f\u4f55\u3092\u98df\u3079\u307e\u3057\u305f\u304b\uff1f","operator_raw":"\u30aa\u30da\u30ec\u30fc\u30bf\u30fc\u3067\u3059","is_default":1,"datetime":"2017\/09\/22 05:28:05"},{"log_id":89,"request_id":129,"application_id":5,"client_id":3,"user_id":2,"user_utterance":"\u3053\u3093\u306b\u3061\u308f","bot_utterance":"\u3053\u3093\u306b\u3061\u306f\uff01\u30e9\u30f3\u30c1\u306f\u4f55\u3092\u98df\u3079\u307e\u3057\u305f\u304b\uff1f","operator_raw":"\u30aa\u30da\u30ec\u30fc\u30bf\u30fc\u3067\u3059","is_default":1,"datetime":"2017\/09\/22 05:28:05"},{"log_id":90,"request_id":130,"application_id":5,"client_id":3,"user_id":2,"user_utterance":"\u3053\u3093\u306b\u3061\u308f","bot_utterance":"\u3053\u3093\u306b\u3061\u306f\uff01\u30e9\u30f3\u30c1\u306f\u4f55\u3092\u98df\u3079\u307e\u3057\u305f\u304b\uff1f","operator_raw":"\u30aa\u30da\u30ec\u30fc\u30bf\u30fc\u3067\u3059","is_default":1,"datetime":"2017\/09\/22 05:28:05"}]}}';
+      var json_data ='{"status":200,"error":"","logs":{"total":10,"first_request_id":121,"last_request_id":125,"first_log_id":81,"last_log_id":90,"datas":[{"log_id":81,"request_id":121,"application_id":5,"client_id":3,"user_id":2,"user_utterance":"\u3053\u3093\u306b\u3061\u308f","bot_utterance":"\u3053\u3093\u306b\u3061\u306f\uff01\u30e9\u30f3\u30c1\u306f\u4f55\u3092\u98df\u3079\u307e\u3057\u305f\u304b\uff1f","operator_raw":"\u30aa\u30da\u30ec\u30fc\u30bf\u30fc\u3067\u3059","is_default":1,"datetime":"2017\/09\/22 05:28:05"},{"log_id":82,"request_id":121,"application_id":5,"client_id":3,"user_id":2,"user_utterance":"\u3053\u3093\u306b\u3061\u308f","bot_utterance":"\u3053\u3093\u306b\u3061\u306f\uff01\u30e9\u30f3\u30c1\u306f\u4f55\u3092\u98df\u3079\u307e\u3057\u305f\u304b\uff1f","operator_raw":"\u30aa\u30da\u30ec\u30fc\u30bf\u30fc\u3067\u3059","is_default":1,"datetime":"2017\/09\/22 05:28:05"},{"log_id":83,"request_id":122,"application_id":5,"client_id":3,"user_id":2,"user_utterance":"\u3053\u3093\u306b\u3061\u308f","bot_utterance":"\u3053\u3093\u306b\u3061\u306f\uff01\u30e9\u30f3\u30c1\u306f\u4f55\u3092\u98df\u3079\u307e\u3057\u305f\u304b\uff1f","operator_raw":"\u30aa\u30da\u30ec\u30fc\u30bf\u30fc\u3067\u3059","is_default":1,"datetime":"2017\/09\/22 05:28:05"},{"log_id":84,"request_id":122,"application_id":5,"client_id":3,"user_id":2,"user_utterance":"\u3053\u3093\u306b\u3061\u308f","bot_utterance":"\u3053\u3093\u306b\u3061\u306f\uff01\u30e9\u30f3\u30c1\u306f\u4f55\u3092\u98df\u3079\u307e\u3057\u305f\u304b\uff1f","operator_raw":"\u30aa\u30da\u30ec\u30fc\u30bf\u30fc\u3067\u3059","is_default":1,"datetime":"2017\/09\/22 05:28:05"},{"log_id":85,"request_id":123,"application_id":5,"client_id":3,"user_id":2,"user_utterance":"\u3053\u3093\u306b\u3061\u308f","bot_utterance":"\u3053\u3093\u306b\u3061\u306f\uff01\u30e9\u30f3\u30c1\u306f\u4f55\u3092\u98df\u3079\u307e\u3057\u305f\u304b\uff1f","operator_raw":"\u30aa\u30da\u30ec\u30fc\u30bf\u30fc\u3067\u3059","is_default":1,"datetime":"2017\/09\/22 05:28:05"},{"log_id":86,"request_id":123,"application_id":5,"client_id":3,"user_id":2,"user_utterance":"\u3053\u3093\u306b\u3061\u308f","bot_utterance":"\u3053\u3093\u306b\u3061\u306f\uff01\u30e9\u30f3\u30c1\u306f\u4f55\u3092\u98df\u3079\u307e\u3057\u305f\u304b\uff1f","operator_raw":"\u30aa\u30da\u30ec\u30fc\u30bf\u30fc\u3067\u3059","is_default":1,"datetime":"2017\/09\/22 05:28:05"},{"log_id":87,"request_id":124,"application_id":5,"client_id":3,"user_id":2,"user_utterance":"\u3053\u3093\u306b\u3061\u308f","bot_utterance":"\u3053\u3093\u306b\u3061\u306f\uff01\u30e9\u30f3\u30c1\u306f\u4f55\u3092\u98df\u3079\u307e\u3057\u305f\u304b\uff1f","operator_raw":"\u30aa\u30da\u30ec\u30fc\u30bf\u30fc\u3067\u3059","is_default":1,"datetime":"2017\/09\/22 05:28:05"},{"log_id":88,"request_id":124,"application_id":5,"client_id":3,"user_id":2,"user_utterance":"\u3053\u3093\u306b\u3061\u308f","bot_utterance":"\u3053\u3093\u306b\u3061\u306f\uff01\u30e9\u30f3\u30c1\u306f\u4f55\u3092\u98df\u3079\u307e\u3057\u305f\u304b\uff1f","operator_raw":"\u30aa\u30da\u30ec\u30fc\u30bf\u30fc\u3067\u3059","is_default":1,"datetime":"2017\/09\/22 05:28:05"},{"log_id":89,"request_id":125,"application_id":5,"client_id":3,"user_id":2,"user_utterance":"\u3053\u3093\u306b\u3061\u308f","bot_utterance":"\u3053\u3093\u306b\u3061\u306f\uff01\u30e9\u30f3\u30c1\u306f\u4f55\u3092\u98df\u3079\u307e\u3057\u305f\u304b\uff1f","operator_raw":"\u30aa\u30da\u30ec\u30fc\u30bf\u30fc\u3067\u3059","is_default":1,"datetime":"2017\/09\/22 05:28:05"},{"log_id":90,"request_id":125,"application_id":5,"client_id":3,"user_id":2,"user_utterance":"\u3053\u3093\u306b\u3061\u308f","bot_utterance":"\u3053\u3093\u306b\u3061\u306f\uff01\u30e9\u30f3\u30c1\u306f\u4f55\u3092\u98df\u3079\u307e\u3057\u305f\u304b\uff1f","operator_raw":"\u30aa\u30da\u30ec\u30fc\u30bf\u30fc\u3067\u3059","is_default":1,"datetime":"2017\/09\/22 05:28:05"}]}}';
 
       //JSONをパース
       var data = JSON.parse(json_data);
       //console.log(data);
       return data;
     };
-    /*
+
+    //ページング処理（行が表示リミットを超えた場合、超過した件数分の行を削除していく）
     function excess_log_delete(control){
-      var len = $("#data-table tr").length;
+      var len = $("#data-table tr").length - 1;
       if(len > DISPLAY_LIMIT){
-        for (var i=0; i> len - DISPLAY_LIMIT; i++){
+        for (var i = 0; i < (len - DISPLAY_LIMIT); i++){
           if(control == 'next'){
-            table.rows[i + 1].remove();
+            table.rows[1].remove();
           }else{
-            table.rows[-1].remove();
+            table.rows[table.rows.length - 1].remove();
           }
         }
+        //詳細明細だった場合の考慮
+        if(control == 'next'){
+          while(table.rows[1].cells[0].innerHTML == '-'){
+            table.rows[1].remove();
+          }
+        }else{
+          while(table.rows[table.rows.length - 1].cells[0].innerHTML == '-'){
+            table.rows[table.rows.length - 1].remove();
+          }
+          table.rows[table.rows.length - 1].classList.add("bottom-row");
+        }
+        first_log_id = table.rows[1].cells[0].innerHTML;
+        first_request_id = table.rows[1].cells[1].innerHTML;
+
+        last_log_id = table.rows[table.rows.length - 1].cells[0].innerHTML;
+        last_request_id = table.rows[table.rows.length - 1].cells[1].innerHTML;
       }
     }
-    */
+
   </script>
   <!-- Placed at the end of the document so the pages load faster -->
 </html>
