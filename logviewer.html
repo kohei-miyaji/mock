@@ -69,7 +69,7 @@
           <div class="table-responsive">
             <table class="table table-fit" id="data-table">
               <thead>
-                <tr bgcolor="slategray">
+                <tr class="top-row" bgcolor="slategray">
                   <th>LogId</th>
                   <th>RequestID</th>
                   <th>Timestamp</th>
@@ -100,7 +100,8 @@
   ================================================== -->
   <script type="text/javascript">
 
-    var DISPLAY_LIMIT = 50;     //最大表示件数(これ以上はページング)
+    var DISPLAY_LIMIT = 500;      //最大表示件数(これ以上はページング)
+    var PAGEING_LIMIT = 100;      //取得件数
     var UPDATE_TIME   = 3;        //アップデートの間隔(秒)
 
     var is_autoupdate = true;
@@ -149,6 +150,9 @@
         console.log("page up");
         is_pageup_event = true;
         prev_page();
+
+        //TODO 上スクロール時に前ページがあった場合は、スクロール位置を基準値（top-rowの位置）に戻す
+        $(window).scrollTop($(".top-row").offset().top);
 
       }else if (top_height < scroll_height2) {
         is_pageup_event = false;
@@ -335,8 +339,9 @@
       /*
       // 各フィールドから値を取得してJSONデータを作成
       var data = {
+        logid: '',
         reqid: '',
-        total: 100,
+        total: PAGEING_LIMIT,
         pagetype: 'next',
         datetime: '',
         appid: $('#appid').val(),
@@ -374,7 +379,8 @@
       /*
       // 各フィールドから値を取得してJSONデータを作成
       var data = {
-        reqid: '',
+        logid: '',
+        reqid: ''
       };
 
       $.ajax({
@@ -407,8 +413,9 @@
       /*
       // 各フィールドから値を取得してJSONデータを作成
       var data = {
+        logid: first_log_id,
         reqid: first_request_id,
-        total: 100,
+        total: PAGEING_LIMIT,
         pagetype: 'prev',
         datetime: '',
         appid: $('#appid').val(),
@@ -445,8 +452,9 @@
       /*
       // 各フィールドから値を取得してJSONデータを作成
       var data = {
+        logid: '',
         reqid: last_request_id,
-        total: 100,
+        total: PAGEING_LIMIT,
         pagetype: 'next',
         datetime: '',
         appid: $('#appid').val(),
