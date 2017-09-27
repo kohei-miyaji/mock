@@ -1,6 +1,6 @@
 <div ng-clock>
 <div id="contents">
-  <form method="post" action="./logviewer.html">
+  <form method="post" action="./logviewer/">
     <group ng-repeat="app in apps" style="display:block;margin:15px;">
       <input ng-model="apps.appid" type="radio" name="appid" id="select{{$index+1}}"
              ng-value="app.application_id" ng-checked="$first">
