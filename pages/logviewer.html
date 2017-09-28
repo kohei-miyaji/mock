@@ -1,100 +1,79 @@
-<!DOCTYPE html>
-<html lang="ja">
-  <head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-    <meta name="description" content="">
-    <meta name="author" content="">
-    <link rel="icon" href="https://fezvrasta.github.io/bootstrap-material-design/favicon.ico">
 
-    <title>Minarai D-Hub Log Viewer</title>
+<nav class="navbar navbar-expand-md navbar-dark fixed-top bg-dark">
+  <a class="navbar-brand" href="#">D-HUB LogViewer</a>
+  <button class="navbar-toggler d-lg-none" type="button" data-toggle="collapse" data-target="#navbarsExampleDefault" aria-controls="navbarsExampleDefault" aria-expanded="false" aria-label="Toggle navigation">
+    <span class="navbar-toggler-icon"></span>
+  </button>
 
-    <!-- Bootstrap core CSS -->
-    <link href="https://fezvrasta.github.io/bootstrap-material-design/dist/css/bootstrap-material-design.min.css" rel="stylesheet">
-    <link href="https://mdbootstrap.com/live/_MDB/css/mdb.min.css" rel="stylesheet">
+  <div class="collapse navbar-collapse" id="navbarsExampleDefault">
+    <ul class="navbar-nav mr-auto">
+      <li class="nav-item">
+        <a class="nav-link" href="#">Home <span class="sr-only">(current)</span></a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" href="./select.html">Settings</a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" href="#">About</a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" href="#">Help</a>
+      </li>
+    </ul>
+    <div class="pull-right switch">
+      <label style="color:white;">Off
+        <input ng-model="is_autoupdate" type="checkbox" id="check-auto-update" checked="checked">
+        <span class="lever"></span> On
+      </label>
+    </div>
+  </div>
+</nav>
 
-    <!-- Font Awesome -->
-    <link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.6.0/css/font-awesome.min.css" rel="stylesheet">
-
-    <!-- Custom styles for this template -->
-    <link href="./css/dashboard.css" rel="stylesheet">
-  </head>
-
-  <body>
-    <nav class="navbar navbar-expand-md navbar-dark fixed-top bg-dark">
-      <a class="navbar-brand" href="#">D-HUB LogViewer</a>
-      <button class="navbar-toggler d-lg-none" type="button" data-toggle="collapse" data-target="#navbarsExampleDefault" aria-controls="navbarsExampleDefault" aria-expanded="false" aria-label="Toggle navigation">
-        <span class="navbar-toggler-icon"></span>
-      </button>
-
-      <div class="collapse navbar-collapse" id="navbarsExampleDefault">
-        <ul class="navbar-nav mr-auto">
-          <li class="nav-item">
-            <a class="nav-link" href="#">Home <span class="sr-only">(current)</span></a>
-          </li>
-          <li class="nav-item">
-            <a class="nav-link" href="./select.html">Settings</a>
-          </li>
-          <li class="nav-item">
-            <a class="nav-link" href="#">About</a>
-          </li>
-          <li class="nav-item">
-            <a class="nav-link" href="#">Help</a>
-          </li>
-        </ul>
-        <div class="pull-right switch">
-          <label style="color:white;">Off
-            <input type="checkbox" id="check-auto-update" checked="checked">
-            <span class="lever"></span> On
-          </label>
+<div class="container-fluid">
+  <div class="row">
+    <main class="col-sm-12 pt-3" role="main">
+      <div class="row text-xs-left">
+        <div class="col-md-8 form-inline mt-2 mt-md-0">
+          <input ng-model="searchdate" class="form-control mr-sm-2" id="search-date" style="width:500px;" type="text" placeholder="Search" aria-label="Search">
+          <button ng-click="search()" class="btn btn-outline-success my-2 my-sm-0" id="btn-search" type="button">Search</button>
+        </div>
+        <div class="col-md-4">
+          <div class="pull-right">
+            <a class="btn-floating btn-small" id="btn-prev" ng-click="prev()"><i class="fa fa-chevron-left"></i></a>
+            <a class="btn-floating btn-small" id="btn-next" ng-click="next()"><i class="fa fa-chevron-right"></i></a>
+          </div>
         </div>
       </div>
-    </nav>
-
-    <div class="container-fluid">
-      <div class="row">
-        <main class="col-sm-12 pt-3" role="main">
-          <div class="row text-xs-left">
-            <form class="col-md-8 form-inline mt-2 mt-md-0">
-              <input class="form-control mr-sm-2" id="search-date" style="width:500px;" type="text" placeholder="Search" aria-label="Search">
-              <button class="btn btn-outline-success my-2 my-sm-0" id="btn-search" type="button">Search</button>
-            </form>
-            <div class="col-md-4">
-              <div class="pull-right">
-                <a class="btn-floating btn-small" id="btn-prev"><i class="fa fa-chevron-left"></i></a>
-                <a class="btn-floating btn-small" id="btn-next"><i class="fa fa-chevron-right"></i></a>
-              </div>
-            </div>
+      <div class="table-responsive">
+        <table class="table table-fit" id="data-table">
+          <thead>
+            <tr class="top-row" bgcolor="slategray">
+              <th style="padding:0px;">LogId</th>
+              <th style="padding:0px;">RequestID</th>
+              <th style="padding:0px;">Timestamp</th>
+              <th style="padding:0px;">UserUtterance</th>
+              <th style="padding:0px;">BotUtterance</th>
+              <th style="padding:0px;">EnginName</th>
+            </tr>
+          </thead>
+          <tbody>
+          <div>
+            <tr ng-repeat="log in logs" ng-click="toggle_detail($index)">
+              <td style="color:green;padding:0px;">{{log.log_id}}</td>
+              <td style="color:green;padding:0px;">{{log.request_id}}</td>
+              <td style="color:green;padding:0px;">{{log.datetime}}</td>
+              <td style="color:green;padding:0px;">{{log.user_utterance}}</td>
+              <td style="color:green;padding:0px;">{{log.bot_utterance}}</td>
+              <td style="color:green;padding:0px;" ng-class="{bottom_row : $last}">{{log.engine_name}}</td>
+            </tr>
           </div>
-          <div class="table-responsive">
-            <table class="table table-fit" id="data-table">
-              <thead>
-                <tr class="top-row" bgcolor="slategray">
-                  <th>LogId</th>
-                  <th>RequestID</th>
-                  <th>Timestamp</th>
-                  <th>UserUtterance</th>
-                  <th>BotUtterance</th>
-                  <th>EnginName</th>
-                </tr>
-              </thead>
-              <tbody>
-              </tbody>
-            </table>
-          </div>
-          <input type="hidden" id="appid" value="12345">
-        </main>
+          </tbody>
+        </table>
       </div>
-    </div>
-  </body>
-  <!-- Bootstrap core JavaScript
-  ================================================== -->
-  <!-- Placed at the end of the document so the pages load faster -->
-  <script src="https://code.jquery.com/jquery-3.2.1.min.js" integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4=" crossorigin="anonymous"></script>
-  <script src="https://fezvrasta.github.io/bootstrap-material-design/assets/js/vendor/popper.min.js"></script>
-  <script src="https://fezvrasta.github.io/bootstrap-material-design/dist/js/bootstrap-material-design.min.js"></script>
-  <!-- IE10 viewport hack for Surface/desktop Windows 8 bug -->
-  <script src="https://fezvrasta.github.io/bootstrap-material-design/assets/js/ie10-viewport-bug-workaround.js"></script>
+      <input type="hidden" id="appid" value="12345">
+    </main>
+  </div>
+</div>
 
   <!-- JavaScript
   ================================================== -->
